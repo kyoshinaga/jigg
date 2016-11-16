@@ -27,6 +27,9 @@ libraryDependencies ++= Seq(
   "org.scala-lang.modules" %% "scala-xml" % "1.0.5",
   "org.scala-lang" % "scala-reflect" % "2.11.7",
   "com.ibm.icu" % "icu4j" % "56.1",
+  "org.scalanlp" %% "breeze" % "0.12",
+  "org.scalanlp" %% "breeze-natives" % "0.12",
+  "org.scalanlp" %% "breeze-viz" % "0.12",
   "org.scalanlp" % "breeze-config_2.10" % "0.9.1",
   "org.json4s" %% "json4s-jackson" % "3.3.0"
 )

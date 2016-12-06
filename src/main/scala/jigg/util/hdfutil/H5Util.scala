@@ -23,7 +23,6 @@ object H5Util {
   }
 
   def loadData(fid: Int): H5Node = {
-//    val fid = openFile(filePath)
     val nameList = getNameTypeList(fid, fid, "/")
     val elemSeq = nameList.map(x => recursiveLoad(fid,x._1,x._2))
     val rootElem = H5Elem("ROOT", "Root", elemSeq: _*)
@@ -49,9 +48,7 @@ object H5Util {
         H5DataSet(data, name, ndim, dims)
   }
 
-  def openFile(filePath:String): Int = {
-    H5.H5Fopen(filePath, HDF5Constants.H5F_ACC_RDONLY,HDF5Constants.H5P_DEFAULT)
-  }
+  def openFile(filePath:String): Int = H5.H5Fopen(filePath, HDF5Constants.H5F_ACC_RDONLY,HDF5Constants.H5P_DEFAULT)
 
   def closeFile(fid:Int): Unit = H5.H5Fclose(fid)
 

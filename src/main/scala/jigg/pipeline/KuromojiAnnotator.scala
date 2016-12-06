@@ -151,6 +151,7 @@ class UnidicKuromojiAnnotator(name: String, props: Properties)
       fType={ token.getFinalSoundAlterationType }
       fForm={ token.getFinalSoundAlterationForm }/>
 
+  // TODO: Should This requirements be TokenizeWithUnidic?
   override def requirementsSatisfied = Set(JaRequirement.TokenizeWithJumandic)
 }
 

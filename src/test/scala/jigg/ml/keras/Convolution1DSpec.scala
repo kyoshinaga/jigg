@@ -27,12 +27,18 @@ class Convolution1DSpec extends FlatSpec with Matchers{
 
   "convert" should "load model and convert input matrix" in {
     val model = KerasModel(findPath("./data/ml/keras/convolution1d/convolution1d_model.h5"))
-    val inputData = csvread(new File(findPath("./data/ml/keras/convolution1d/convolution1d_input.csv")),separator = ',').asInstanceOf[DenseMatrix[Float]]
-    val goldData = csvread(new File(findPath("./data/ml/keras/convolution1d/convolution1d_gold.csv")),separator = ',').asInstanceOf[DenseMatrix[Float]]
+    val inputData = csvread(new File(findPath("./data/ml/keras/convolution1d/convolution1d_input.csv")),separator = ',')
+    val goldData = csvread(new File(findPath("./data/ml/keras/convolution1d/convolution1d_gold.csv")),separator = ',')
 
-    val output = model.convert(inputData)
+    val inputDataFloat = inputData.map(x => x.toFloat)
+    val goldDataFloat = goldData.map{x => x.toFloat}
 
-    val diff = abs(output - goldData).forall(x => x < 1e-6.toFloat)
+    val output = model.convert(inputDataFloat)
+
+    val diff = abs(output - goldDataFloat).forall(x => x < 1e-6.toFloat)
+
+    println(goldData)
+    println(goldDataFloat)
 
     diff should be (true)
   }

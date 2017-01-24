@@ -51,7 +51,7 @@ object Embedding{
   def apply(configs: Map[String, Any], weightGroups: Group) = {
     val layerName = configs("name").toString
     val params = weightGroups.findGroup(layerName)
-    val weightNames = params.findAttribute("weight_naems")
+    val weightNames = params.findAttribute("weight_names")
     val weight = params.findVariable(weightNames.getStringValue(0))
     val dims = weight.getDimensions
     if(dims.size != 2){

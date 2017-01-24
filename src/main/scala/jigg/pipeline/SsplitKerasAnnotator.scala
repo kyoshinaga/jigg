@@ -47,9 +47,7 @@ class SsplitKerasAnnotator(override val name: String, override val props: Proper
 
   private[this] val sentenceIDGen = jigg.util.IDGenerator("s")
 
-
   override def annotate(annotation: Node): Node = {
-
     XMLUtil.replaceAll(annotation, "document") { e =>
       val line = e.text
       val sentenceBoundaries = ssplitter.s.parsing(line)
@@ -67,8 +65,6 @@ class SsplitKerasAnnotator(override val name: String, override val props: Proper
       }.toVector
       XMLUtil.addChild(e, <sentences>{ sentences }</sentences>)
     }
-
-    annotation
   }
 
   class QueueSsplitter {
@@ -102,9 +98,7 @@ class SsplitKerasAnnotator(override val name: String, override val props: Proper
 
 object SsplitKerasAnnotator extends AnnotatorCompanion[SsplitKerasAnnotator] {
 
-  override def fromProps(name: String, props: Properties) = {
-    val modelFile = name + ".model"
-    val tableFile = name + ".table"
-  }
+  val model = ""
+  val table = ""
 
 }

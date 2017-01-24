@@ -36,13 +36,13 @@ class KerasParser(modelPath: String, tablePath: String) {
   private val tagset:Map[Int, String] = Map(0 -> "B", 1 -> "I", 2 -> "O")
 
   def parsing(str: String): List[(Int, Int)] = {
-    // For dummy input to indicate beginning of sentence.
-    val s = "\n" + str
+    // For dummy input to indicate boundaries of sentence.
+    val s = "\n" + str + "\n"
     val inputData = table.encode(s)
     val outputData = model.convert(inputData)
 
     val tags = for {
-      i <- 1 until outputData.rows
+      i <- 1 until outputData.rows - 1
       maxID = argmax(outputData(i, ::))
     } yield maxID
 

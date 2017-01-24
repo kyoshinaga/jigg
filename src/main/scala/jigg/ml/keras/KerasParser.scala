@@ -51,6 +51,9 @@ class KerasParser(modelPath: String, tablePath: String) {
 
     for(i <- tags.indices){
       tagset(tags(i)) match{
+        case _ if str(i) == '\n' =>
+          ranges += ((bpos, i))
+          bpos = i + 1
         case "B" =>
           if(bpos == -1){
             if(i > 0)

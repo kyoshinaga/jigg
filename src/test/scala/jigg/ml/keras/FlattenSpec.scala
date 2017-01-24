@@ -22,14 +22,14 @@ import breeze.linalg.csvread
 import breeze.numerics.abs
 import org.scalatest._
 
-class Convolution1DSpec extends FlatSpec with Matchers{
+class FlattenSpec extends FlatSpec with Matchers{
 
   def findPath(localPath: String) = getClass.getClassLoader.getResource(localPath).getPath
 
   "convert" should "load model and convert input matrix" in {
-    val model = KerasModel(findPath("./data/ml/keras/convolution1d/convolution1d_model.h5"))
-    val inputData = csvread(new File(findPath("./data/ml/keras/convolution1d/convolution1d_input.csv")),separator = ',').map{x => x.toFloat}
-    val goldData = csvread(new File(findPath("./data/ml/keras/convolution1d/convolution1d_gold.csv")),separator = ',').map{x => x.toFloat}
+    val model = KerasModel(findPath("./data/ml/keras/flatten/flatten_model.h5"))
+    val inputData = csvread(new File(findPath("./data/ml/keras/flatten/flatten_input.csv")),separator = ',').map{x => x.toFloat}
+    val goldData = csvread(new File(findPath("./data/ml/keras/flatten/flatten_gold.csv")),separator = ',').map{x => x.toFloat}
 
     val output = model.convert(inputData)
 

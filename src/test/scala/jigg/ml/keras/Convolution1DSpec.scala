@@ -39,6 +39,7 @@ class Convolution1DSpec extends FlatSpec with Matchers{
 
     println(goldData)
     println(goldDataFloat)
+    println(output)
 
     diff should be (true)
   }

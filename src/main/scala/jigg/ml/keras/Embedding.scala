@@ -48,7 +48,7 @@ class Embedding(vocabulary: Int, outDim: Int) extends Functor{
 object Embedding{
   def apply(vocabulary: Int, outDim: Int) = new Embedding(vocabulary, outDim)
 
-  def appy(configs: Map[String, Any], weightGroups: Group) = {
+  def apply(configs: Map[String, Any], weightGroups: Group) = {
     val layerName = configs("name").toString
     val params = weightGroups.findGroup(layerName)
     val weightNames = params.findAttribute("weight_naems")

@@ -21,7 +21,7 @@ import java.util.Properties
 import org.scalatest.FunSuite
 import org.scalatest.Matchers._
 
-class SsplitKerasAnnotatorSpec extends FunSuite {
+class SsplitKerasAnnotatorTest extends FunSuite {
 
   def rootNode(text: String) = <root><document>{ text }</document></root>
 
@@ -37,7 +37,9 @@ class SsplitKerasAnnotatorSpec extends FunSuite {
     val properties = new Properties
     properties.setProperty("ssplitKeras.model", findPath("./data/keras/ssplit_model.h5"))
     properties.setProperty("ssplitKeras.table", findPath("./data/keras/jpnLookup.json"))
-    val sentences = segment("梅が咲いた。桜も咲いた。", properties)
+    val sentences = segment("梅が咲いた。\n桜も咲いた。", properties)
+
+    println(sentences.mkString(","))
 
     sentences.length should be (2)
     sentences(0).text should be ("梅が咲いた。")

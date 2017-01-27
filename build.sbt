@@ -30,8 +30,9 @@ libraryDependencies ++= Seq(
   "org.scalanlp" %% "breeze" % "0.12",
   "org.scalanlp" % "breeze-config_2.10" % "0.9.1",
   "org.json4s" %% "json4s-jackson" % "3.3.0",
-  "com.typesafe.akka" %% "akka-http" % "10.0.1"
+  "com.typesafe.akka" %% "akka-http" % "10.0.1",
   // "com.typesafe.akka" %% "akka-http-xml" % "10.0.1",
+  "edu.ucar" % "cdm" % "4.6.8"
 )
 
 libraryDependencies ++= (

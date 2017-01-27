@@ -39,7 +39,16 @@ class SsplitKerasAnnotatorTest extends FunSuite {
     properties.setProperty("ssplitKeras.table", findPath("./data/keras/jpnLookup.json"))
     val sentences = segment("梅が咲いた。\n桜も咲いた。", properties)
 
-    println(sentences.mkString(","))
+    sentences.length should be (2)
+    sentences(0).text should be ("梅が咲いた。")
+    sentences(1).text should be ("桜も咲いた。")
+  }
+
+  test("split sentence by point") {
+    val properties = new Properties
+    properties.setProperty("ssplitKeras.model", findPath("./data/keras/ssplit_model.h5"))
+    properties.setProperty("ssplitKeras.table", findPath("./data/keras/jpnLookup.json"))
+    val sentences = segment("梅が咲いた。桜も咲いた。", properties)
 
     sentences.length should be (2)
     sentences(0).text should be ("梅が咲いた。")
@@ -50,9 +59,7 @@ class SsplitKerasAnnotatorTest extends FunSuite {
     val properties = new Properties
     properties.setProperty("ssplitKeras.model", findPath("./data/keras/ssplit_model.h5"))
     properties.setProperty("ssplitKeras.table", findPath("./data/keras/jpnLookup.json"))
-    val sentences = segment("\n\n   梅が咲いた。\n   \n\n    桜も咲いた。  \n \n ", properties)
-
-    println(sentences.mkString(","))
+    val sentences = segment("\n\n梅が咲いた。\n\n\n桜も咲いた。\n\n", properties)
 
     sentences.length should be (2)
     sentences(0).text should be ("梅が咲いた。")

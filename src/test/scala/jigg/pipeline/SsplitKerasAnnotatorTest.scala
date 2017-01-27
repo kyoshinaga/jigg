@@ -33,11 +33,24 @@ class SsplitKerasAnnotatorTest extends FunSuite {
 
   def findPath(localPath: String) = getClass.getClassLoader.getResource(localPath).getPath
 
-  test("split sentence by point") {
+  test("split sentence by new line") {
     val properties = new Properties
     properties.setProperty("ssplitKeras.model", findPath("./data/keras/ssplit_model.h5"))
     properties.setProperty("ssplitKeras.table", findPath("./data/keras/jpnLookup.json"))
     val sentences = segment("梅が咲いた。\n桜も咲いた。", properties)
+
+    println(sentences.mkString(","))
+
+    sentences.length should be (2)
+    sentences(0).text should be ("梅が咲いた。")
+    sentences(1).text should be ("桜も咲いた。")
+  }
+
+  test("split text containing multiple new lines") {
+    val properties = new Properties
+    properties.setProperty("ssplitKeras.model", findPath("./data/keras/ssplit_model.h5"))
+    properties.setProperty("ssplitKeras.table", findPath("./data/keras/jpnLookup.json"))
+    val sentences = segment("\n\n   梅が咲いた。\n   \n\n    桜も咲いた。  \n \n ", properties)
 
     println(sentences.mkString(","))
 

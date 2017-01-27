@@ -38,7 +38,7 @@ class KerasParserTest extends FunSuite{
 
     println(ranges.mkString(",\n"))
 
-    1 should be (1)
+    ranges should be (List[(Int, Int)]((0,3),(3,6)))
   }
 
 }

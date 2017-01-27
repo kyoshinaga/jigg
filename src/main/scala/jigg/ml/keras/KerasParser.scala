@@ -46,28 +46,24 @@ class KerasParser(modelPath: String, tablePath: String) {
       maxID = argmax(outputData(i, ::))
     } yield maxID
 
-    val ranges = ListBuffer[(Int, Int)]()
-    var bpos = -1
+    getOffsets(tags.toList)
+  }
 
-    for(i <- tags.indices){
-      tagset(tags(i)) match{
-        case _ if str(i) == '\n' =>
-          ranges += ((bpos, i))
-          bpos = i + 1
+  def getOffsets(data: List[Int]): List[(Int, Int)]= {
+    val ranges = ListBuffer[(Int, Int)]()
+    var bpos = 0
+
+    for(i <- data.indices){
+      tagset(data(i)) match{
         case "B" =>
-          if(bpos == -1){
-            if(i > 0)
-              ranges += ((0, i))
-          }
-          else{
-            if(bpos != i)
-              ranges += ((bpos, i))
-          }
+          if(bpos != 0)
+            ranges += ((bpos, i))
           bpos = i
         case "O" =>
-          ranges += ((bpos, i))
-          bpos = i + 1
-        case _ if i == tags.indices.last =>
+          if (bpos != 0)
+            ranges += ((bpos, i))
+          bpos = 0
+        case _ if i == data.indices.last =>
           ranges += ((bpos, i + 1))
         case _ =>
       }

@@ -33,10 +33,11 @@ class SsplitKerasAnnotatorTest extends FunSuite {
 
   def findPath(localPath: String) = getClass.getClassLoader.getResource(localPath).getPath
 
+  val properties = new Properties
+  properties.setProperty("ssplitKeras.model", findPath("./data/keras/ssplit_model.h5"))
+  properties.setProperty("ssplitKeras.table", findPath("./data/keras/jpnLookup.json"))
+
   test("split sentence by new line") {
-    val properties = new Properties
-    properties.setProperty("ssplitKeras.model", findPath("./data/keras/ssplit_model.h5"))
-    properties.setProperty("ssplitKeras.table", findPath("./data/keras/jpnLookup.json"))
     val sentences = segment("梅が咲いた。\n桜も咲いた。", properties)
 
     sentences.length should be (2)
@@ -45,9 +46,6 @@ class SsplitKerasAnnotatorTest extends FunSuite {
   }
 
   test("split text containing multiple new lines") {
-    val properties = new Properties
-    properties.setProperty("ssplitKeras.model", findPath("./data/keras/ssplit_model.h5"))
-    properties.setProperty("ssplitKeras.table", findPath("./data/keras/jpnLookup.json"))
     val sentences = segment("梅が咲いた。\n\n\n桜も咲いた。\n\n", properties)
 
     sentences.length should be (2)
@@ -56,9 +54,6 @@ class SsplitKerasAnnotatorTest extends FunSuite {
   }
 
   test("split sentence by bracket") {
-    val properties = new Properties
-    properties.setProperty("ssplitKeras.model", findPath("./data/keras/ssplit_model.h5"))
-    properties.setProperty("ssplitKeras.table", findPath("./data/keras/jpnLookup.json"))
     val sentences = segment("「梅が咲いた。」「桜も咲いた。」「ウグイスが鳴いた。」", properties)
 
     sentences.length should be (3)
@@ -68,9 +63,6 @@ class SsplitKerasAnnotatorTest extends FunSuite {
   }
 
   test("split sentence by point") {
-    val properties = new Properties
-    properties.setProperty("ssplitKeras.model", findPath("./data/keras/ssplit_model.h5"))
-    properties.setProperty("ssplitKeras.table", findPath("./data/keras/jpnLookup.json"))
     val sentences = segment("梅が咲いた。桜も咲いた。ウグイスが鳴いた。", properties)
 
     sentences.length should be (3)
@@ -80,9 +72,6 @@ class SsplitKerasAnnotatorTest extends FunSuite {
   }
 
   test("split text containing multiple new lines and space") {
-    val properties = new Properties
-    properties.setProperty("ssplitKeras.model", findPath("./data/keras/ssplit_model.h5"))
-    properties.setProperty("ssplitKeras.table", findPath("./data/keras/jpnLookup.json"))
     val sentences = segment("\n\n  梅が咲いた。 \n\n \n  桜も咲いた。ウグイスが鳴いた。\n\n  ", properties)
 
     sentences.length should be (3)
@@ -92,9 +81,6 @@ class SsplitKerasAnnotatorTest extends FunSuite {
   }
 
   test("character offset value can recover the original text"){
-    val properties = new Properties
-    properties.setProperty("ssplitKeras.model", findPath("./data/keras/ssplit_model.h5"))
-    properties.setProperty("ssplitKeras.table", findPath("./data/keras/jpnLookup.json"))
     val text = "\n\n  梅が咲いた。 \n\n \n  桜も咲いた。ウグイスが鳴いた。\n\n  "
     val sentences = segment(text, properties)
 
@@ -106,5 +92,4 @@ class SsplitKerasAnnotatorTest extends FunSuite {
       )
     }
   }
-
 }

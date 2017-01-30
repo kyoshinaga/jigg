@@ -49,20 +49,36 @@ class SsplitKerasAnnotator(override val name: String, override val props: Proper
 
   override def annotate(annotation: Node): Node = {
     XMLUtil.replaceAll(annotation, "document") { e =>
+      val splitRegex = """\n+""".r
       val line = e.text
-      val sentenceBoundaries = ssplitter.s.parsing(line)
-      val sentences: Vector[Node] = sentenceBoundaries.flatMap{x =>
-        val sentence: String = line.substring(x._1, x._2)
-        if (sentence.isEmpty)
-          None
-        else {
-          Option(<sentence
-            id={ sentenceIDGen.next }
-            characterOffsetBegin={ x._1 + ""}
-            characterOffsetEnd={ x._2 + ""} >{ sentence }</sentence>
-            )
+      val sentenceBoundaries = 0 +: splitRegex.findAllMatchIn(line).map(_.end).toVector :+ line.length
+      val sentences: Vector[Node] = sentenceBoundaries.sliding(2).toVector flatMap { case Seq(begin_, end_) =>
+        def isSpace(c: Char) = c == ' ' || c == '\t' || c == '\n'
+        val snippet = line.substring(begin_, end_)
+        val begin = snippet.indexWhere(!isSpace(_)) match {
+          case -1 => begin_
+          case offset => begin_ + offset
         }
-      }.toVector
+        val end = snippet.lastIndexWhere(!isSpace(_)) match { 
+          case -1 => begin_
+          case offset => begin_ + offset + 1
+        }
+
+        val preSentence: String = line.substring(begin, end)
+        val boundaries = ssplitter.s.parsing(preSentence)
+
+        boundaries.flatMap{x =>
+          val subline = preSentence.substring(x._1, x._2)
+          if (subline.isEmpty)
+            None
+          else{
+            Option(<sentence
+            id={ sentenceIDGen.next }
+            characterOffsetBegin={ x._1 + begin + ""}
+            characterOffsetEnd={ x._2 + + begin + ""}>{subline}</sentence>)
+          }
+        }
+      }
       XMLUtil.addChild(e, <sentences>{ sentences }</sentences>)
     }
   }

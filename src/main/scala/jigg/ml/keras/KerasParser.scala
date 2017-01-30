@@ -31,7 +31,7 @@ class KerasParser(modelPath: String, tablePath: String) {
  * BIO tag
  *  B : Begin of segment.               Value is 0.
  *  I : Continuation or end of segment. Value is 1.
- *  O : Outside of segment.             Value is 2.
+ *  O : Others.                         Value is 2.
  */
   private val tagset:Map[Int, String] = Map(0 -> "B", 1 -> "I", 2 -> "O")
 
@@ -45,9 +45,6 @@ class KerasParser(modelPath: String, tablePath: String) {
       i <- 1 until outputData.rows - 1
       maxID = argmax(outputData(i, ::))
     } yield maxID
-
-    println(inputData)
-    println(tags.mkString(","))
 
     getOffsets(tags.toList)
   }

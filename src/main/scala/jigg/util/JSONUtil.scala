@@ -19,6 +19,7 @@ package jigg.util
 import org.json4s.{DefaultFormats, _}
 import org.json4s.jackson.JsonMethods._
 
+import scala.collection.mutable
 import scala.collection.mutable.StringBuilder
 import scala.xml._
 
@@ -27,9 +28,9 @@ object JSONUtil {
   def toJSON(x: Node): String = toJSONFromNode(x)
 
   private def toJSONFromNode(node: Node): String = {
-    val sb = new StringBuilder
-    val escapedsb = new StringBuilder
-    val returnsb = new StringBuilder
+    val sb = new mutable.StringBuilder
+    val escapedsb = new mutable.StringBuilder
+    val returnsb = new mutable.StringBuilder
     sb.append('{')
     sb.append(List("\".tag\":\"",node.label,"\",").mkString)
     sb.append("\".child\":")
@@ -43,8 +44,8 @@ object JSONUtil {
     pretty(render(parse(sb.toString.replace("\\","\\\\"))))
   }
 
-  private def serializing[T <: Node](x: T): StringBuilder = {
-    val subsb = new StringBuilder
+  private def serializing[T <: Node](x: T): mutable.StringBuilder = {
+    val subsb = new mutable.StringBuilder
     if(XMLUtil.hasChild(x)){
       val childNode = XMLUtil.getNonEmptyChild(x)
       var prefix = ""
@@ -56,12 +57,12 @@ object JSONUtil {
         var prefix2 = ""
         if(!XMLUtil.text(i).isEmpty){
           subsb.append(prefix2)
-          val text = new StringBuilder
+          val text = new mutable.StringBuilder
           Utility.escape(XMLUtil.text(i), text)
           prefix2 = ","
           subsb.append(List("\"text\":\"", text, '"').mkString)
         }
-        if (!i.attributes.isEmpty){
+        if (i.attributes.nonEmpty){
           for(elem <- XMLUtil.getAttributionList(i)){
             subsb.append(prefix2)
             prefix2 = ","
@@ -69,7 +70,7 @@ object JSONUtil {
           }
         }
 
-        if(retsb.length > 0){
+        if(retsb.nonEmpty){
           subsb.append(prefix2)
           subsb.append("\".child\":")
           subsb.append("[")

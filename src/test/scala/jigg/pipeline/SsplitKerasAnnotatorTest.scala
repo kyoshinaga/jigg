@@ -21,17 +21,19 @@ import java.util.Properties
 import org.scalatest.FunSuite
 import org.scalatest.Matchers._
 
+import scala.xml.{Elem, NodeSeq}
+
 class SsplitKerasAnnotatorTest extends FunSuite {
 
-  def rootNode(text: String) = <root><document>{ text }</document></root>
+  def rootNode(text: String): Elem = <root><document>{ text }</document></root>
 
-  def segment(text: String, properties: Properties) = {
+  def segment(text: String, properties: Properties): NodeSeq = {
     val ssplit = new SsplitKerasAnnotator("ssplitKeras", properties)
     val root = rootNode(text)
     ssplit.annotate(root) \ "document" \ "sentences" \ "sentence"
   }
 
-  def findPath(localPath: String) = getClass.getClassLoader.getResource(localPath).getPath
+  def findPath(localPath: String): String = getClass.getClassLoader.getResource(localPath).getPath
 
   val properties = new Properties
   properties.setProperty("ssplitKeras.model", findPath("./data/keras/ssplit_model.h5"))

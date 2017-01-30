@@ -26,6 +26,6 @@ object Relu extends Functor{
     if(x > 0.0.toFloat) x else 0.0.toFloat
   )
 
-  def apply(x: DenseMatrix[Float]) = this.convert(x)
+  def apply(x: DenseMatrix[Float]): DenseMatrix[Float] = this.convert(x)
 
 }

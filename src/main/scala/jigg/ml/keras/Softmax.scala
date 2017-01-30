@@ -31,6 +31,6 @@ object Softmax extends Functor{
     data
   }
 
-  def apply(x: DenseMatrix[Float]) = this.convert(x)
+  def apply(x: DenseMatrix[Float]): DenseMatrix[Float] = this.convert(x)
 
 }

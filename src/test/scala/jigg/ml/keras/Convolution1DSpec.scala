@@ -24,7 +24,7 @@ import org.scalatest._
 
 class Convolution1DSpec extends FlatSpec with Matchers{
 
-  def findPath(localPath: String) = getClass.getClassLoader.getResource(localPath).getPath
+  def findPath(localPath: String): String = getClass.getClassLoader.getResource(localPath).getPath
 
   "convert" should "load model and convert input matrix" in {
     val model = KerasModel(findPath("./data/ml/keras/convolution1d/convolution1d_model.h5"))

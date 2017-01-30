@@ -41,7 +41,7 @@ class SsplitKerasAnnotator(override val name: String, override val props: Proper
 
 """
 
-  override def init() = {
+  override def init(): Unit = {
     ssplitter
   }
 
@@ -86,10 +86,10 @@ class SsplitKerasAnnotator(override val name: String, override val props: Proper
   class QueueSsplitter {
     private def mkSsplitter: KerasParser = model match {
       case "" =>
-        System.err.println(s"No model file is given. Try to search default path: ${defaultModelFileName}")
+        System.err.println(s"No model file is given. Try to search default path: $defaultModelFileName")
         table match {
           case "" =>
-            System.err.println(s"No lookup table file is given. Try to search default path: ${defaultModelFileName}")
+            System.err.println(s"No lookup table file is given. Try to search default path: $defaultModelFileName")
             KerasParser(defaultModelFileName, defaultTableFileName)
           case tableFile =>
             KerasParser(defaultModelFileName, tableFile)
@@ -97,17 +97,17 @@ class SsplitKerasAnnotator(override val name: String, override val props: Proper
       case modelFile =>
         table match {
           case "" =>
-            System.err.println(s"No lookup table file is given. Try to search default path: ${defaultModelFileName}")
+            System.err.println(s"No lookup table file is given. Try to search default path: $defaultModelFileName")
             KerasParser(model, defaultTableFileName)
           case tableFile =>
             KerasParser(model, tableFile)
         }
     }
 
-    val s = mkSsplitter
+    val s: KerasParser = mkSsplitter
   }
 
-  override def requires = Set()
+  override def requires() = Set()
   override def requirementsSatisfied(): Set[Requirement] = Set(Requirement.Ssplit)
 
 }

@@ -23,10 +23,10 @@ import org.scalatest.Matchers._
 
 class KerasParserTest extends FunSuite{
 
-  def findPath(localPath: String) = getClass.getClassLoader.getResource(localPath).getPath
+  def findPath(localPath: String): String = getClass.getClassLoader.getResource(localPath).getPath
 
-  val modelPath = findPath("./data/keras/ssplit_model.h5")
-  val tablePath = findPath("./data/keras/jpnLookup.json")
+  val modelPath: String = findPath("./data/keras/ssplit_model.h5")
+  val tablePath: String = findPath("./data/keras/jpnLookup.json")
 
   val parser = KerasParser(modelPath, tablePath)
 

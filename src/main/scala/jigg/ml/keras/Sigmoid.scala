@@ -25,6 +25,6 @@ object Sigmoid extends Functor {
 
   override final def convert(data: DenseMatrix[Float]): DenseMatrix[Float] = data.map{x => (1.0 / (1.0 + exp(-x))).toFloat}
 
-  def apply(x: DenseMatrix[Float]) = this.convert(x)
+  def apply(x: DenseMatrix[Float]): DenseMatrix[Float] = this.convert(x)
 
 }

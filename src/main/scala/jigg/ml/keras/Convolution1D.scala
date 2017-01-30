@@ -82,7 +82,7 @@ class Convolution1D(outCh: Int, width: Int, inputDim: Int, padding: Boolean) ext
 object Convolution1D{
   def apply(outCh: Int, width: Int, inputDim: Int, padding: Boolean) = new Convolution1D(outCh, width, inputDim, padding)
 
-  def apply(configs: Map[String, Any], weightGroups: Group) = {
+  def apply(configs: Map[String, Any], weightGroups: Group): Convolution1D = {
     val layerName = configs("name").toString
     val params = weightGroups.findGroup(layerName)
     val weightNames = params.findAttribute("weight_names")

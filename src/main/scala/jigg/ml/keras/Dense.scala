@@ -55,7 +55,7 @@ class Dense(inputDim: Int, outputDim: Int) extends Functor{
 object Dense{
   def apply(inputDim:Int, outputDim:Int) = new Dense(inputDim, outputDim)
 
-  def apply(configs: Map[String, Any], weightGroups: Group) = {
+  def apply(configs: Map[String, Any], weightGroups: Group): Dense = {
     val layerName = configs("name").toString
     val params = weightGroups.findGroup(layerName)
     val weightNames = params.findAttribute("weight_names")

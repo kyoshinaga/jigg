@@ -45,23 +45,19 @@ class KerasModel(path: String) {
     x => {
       val configs = getConfigs(x)
       val functor = x("class_name").toString match {
-        case "Activation" => {
+        case "Activation" =>
           configs("activation").toString match{
             case "relu" => Relu
             case "softmax" => Softmax
             case "sigmoid" => Sigmoid
             case "tanh" => Tanh
           }
-        }
-        case "Convolution1D" => {
+        case "Convolution1D" =>
           Convolution1D(configs, weightGroups)
-        }
-        case "Dense" => {
+        case "Dense" =>
           Dense(configs, weightGroups)
-        }
-        case "Embedding" => {
+        case "Embedding" =>
           Embedding(configs, weightGroups)
-        }
         case "Flatten" => Flatten
         case _ => Empty
       }

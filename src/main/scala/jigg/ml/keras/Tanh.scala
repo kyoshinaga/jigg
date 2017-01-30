@@ -25,6 +25,6 @@ object Tanh extends Functor{
 
   override final def convert(data: DenseMatrix[Float]): DenseMatrix[Float] = data.map{ x => tanh(x)}
 
-  def apply(x: DenseMatrix[Float]) = this.convert(x)
+  def apply(x: DenseMatrix[Float]): DenseMatrix[Float] = this.convert(x)
 
 }

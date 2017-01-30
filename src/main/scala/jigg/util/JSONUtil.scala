@@ -1,25 +1,36 @@
 package jigg.util
 
-import java.io._
+/*
+ Copyright 2013-2015 Hiroshi Noji
 
-import scala.xml._
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-import scala.io.Source
-import scala.collection.mutable.{ArrayBuffer, StringBuilder}
+     http://www.apache.org/licencses/LICENSE-2.0
 
-import org.json4s._
-import org.json4s.DefaultFormats
-import org.json4s.JsonDSL._
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitation under the License.
+*/
+
+import org.json4s.{DefaultFormats, _}
 import org.json4s.jackson.JsonMethods._
+
+import scala.collection.mutable
+import scala.collection.mutable.StringBuilder
+import scala.xml._
 
 object JSONUtil {
 
   def toJSON(x: Node): String = toJSONFromNode(x)
 
   private def toJSONFromNode(node: Node): String = {
-    val sb = new StringBuilder
-    val escapedsb = new StringBuilder
-    val returnsb = new StringBuilder
+    val sb = new mutable.StringBuilder
+    val escapedsb = new mutable.StringBuilder
+    val returnsb = new mutable.StringBuilder
     sb.append('{')
     sb.append(List("\".tag\":\"",node.label,"\",").mkString)
     sb.append("\".child\":")
@@ -33,8 +44,8 @@ object JSONUtil {
     pretty(render(parse(sb.toString.replace("\\","\\\\"))))
   }
 
-  private def serializing[T <: Node](x: T): StringBuilder = {
-    val subsb = new StringBuilder
+  private def serializing[T <: Node](x: T): mutable.StringBuilder = {
+    val subsb = new mutable.StringBuilder
     if(XMLUtil.hasChild(x)){
       val childNode = XMLUtil.getNonEmptyChild(x)
       var prefix = ""
@@ -46,12 +57,12 @@ object JSONUtil {
         var prefix2 = ""
         if(!XMLUtil.text(i).isEmpty){
           subsb.append(prefix2)
-          val text = new StringBuilder
+          val text = new mutable.StringBuilder
           Utility.escape(XMLUtil.text(i), text)
           prefix2 = ","
           subsb.append(List("\"text\":\"", text, '"').mkString)
         }
-        if (!i.attributes.isEmpty){
+        if (i.attributes.nonEmpty){
           for(elem <- XMLUtil.getAttributionList(i)){
             subsb.append(prefix2)
             prefix2 = ","
@@ -59,7 +70,7 @@ object JSONUtil {
           }
         }
 
-        if(retsb.length > 0){
+        if(retsb.nonEmpty){
           subsb.append(prefix2)
           subsb.append("\".child\":")
           subsb.append("[")

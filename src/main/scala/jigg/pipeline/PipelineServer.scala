@@ -29,6 +29,7 @@ import jigg.util.LogUtil.{ track, multipleTrack }
 import jigg.util.{PropertiesUtil => PU, IOUtil, XMLUtil, JSONUtil}
 
 import akka.actor.{Actor, ActorRef, ActorSystem, Props}
+import akka.event.Logging
 import akka.http.scaladsl.coding.Deflate
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.marshalling.ToResponseMarshaller
@@ -43,13 +44,16 @@ import akka.util.Timeout
 class PipelineActor extends Actor {
   import PipelineServer.Params
 
+  val log = Logging(context.system, this)
+
   var lastParams: Params = null
   var lastPipeline: Pipeline = null
 
   def receive = {
     case params: Params => {
       val coreParams = removeNonCore(params)
-      if (coreParams != lastParams) reset(coreParams)
+      // If params are empty, use the same params as before.
+      if (coreParams != lastParams && !coreParams.isEmpty) reset(coreParams)
       sender ! lastPipeline
     }
   }
@@ -67,6 +71,8 @@ class PipelineActor extends Actor {
 
     val props = new Properties
     for ((k, v) <- params.kvs) props.setProperty(k, v)
+
+    log.info("Pipeline is updated. New property: " + props)
 
     lastPipeline = new Pipeline(props)
   }
@@ -88,6 +94,15 @@ ${super.description}
 
 JiggServer can be used as an interface of Jigg to other languages such as Python.
 See README in "python/pyjigg" for this usage.
+
+Another usage via curl is that:
+
+  > curl --data-urlencode 'annotators=corenlp[tokenize,ssplit]' \
+         --data-urlencode 'q=Please annotate me!' \
+         'http://localhost:8080/annotate?outputFormat=json'
+
+The data with the key "q" is treated as an input text. Multiple "q"s in a query
+are allowed and are concatenated.
 
 Currently this server only supports POST method and the input text should be a raw text
 (not XML or JSON, which will be supported in future). For each call, users must specify
@@ -125,9 +140,15 @@ where <annotator name> may be specific name such as corenlp or kuromoji."""
       path("annotate") {
         post {
           parameterSeq { _params =>
-            entity(as[String]) { text =>
+            formFieldSeq { _forms =>
 
-              val params = _params.toMap
+              val (textSeq, formParamSeq) = _forms.partition(a => a._2 == "" || a._1 == "q")
+              val text = textSeq map {
+                case (a, "") => a
+                case ("q", a) => a
+              } mkString "\n"
+
+              val params = _params.toMap ++ formParamSeq.toMap
 
               val maybePipeline = (actor ? PipelineServer.Params(params)).mapTo[Pipeline]
 
@@ -187,7 +208,9 @@ where <annotator name> may be specific name such as corenlp or kuromoji."""
 
 object PipelineServer {
 
-  case class Params(kvs: Map[String, String])
+  case class Params(kvs: Map[String, String]) {
+    def isEmpty() = kvs.isEmpty
+  }
 
   def main(args: Array[String]): Unit = {
 

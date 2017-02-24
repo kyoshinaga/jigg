@@ -19,7 +19,6 @@ object JSONUtil {
       "&amp;" -> "&",
       "&quot;" -> "\\\\\"",
       // For JSON escaping
-      "\\" -> "\\\\",
       "\b" -> "\\b",
       "\f" -> "\\f",
       "\n" -> "\\n",

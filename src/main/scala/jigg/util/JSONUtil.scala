@@ -13,17 +13,15 @@ object JSONUtil {
 
   private def toJSONFromNode(node: Node): String = {
     val unescapeMap = Map(
+      // For JSON escaping
+      "\r" -> "\\r",
+      "\t" -> "\\t",
+      "\n" -> "\\n",
       // For XML escaping
       "&lt;" -> "<",
       "&gt;" -> ">",
       "&amp;" -> "&",
-      "&quot;" -> "\\\\\"",
-      // For JSON escaping
-      "\b" -> "\\b",
-      "\f" -> "\\f",
-      "\n" -> "\\n",
-      "\r" -> "\\r",
-      "\t" -> "\\t"
+      "&quot;" -> "\\\""
     )
     val sb = new StringBuilder
     sb.append('{')
@@ -36,8 +34,7 @@ object JSONUtil {
     // The "parse" method can't handle the string with several special characters,
     // because the "JString" class can't accept such kind of string.
     // To escape this issue, we replace such characters before throwing it to the "parse" method.
-    println(unescapeMap.foldLeft(sb.toString) { (text, pair) => text.replaceAll(pair._1, pair._2)})
-    val escapedStr = unescapeMap.foldLeft(sb.toString.replace("\\","\\\\")) { (text, pair) => text.replaceAll(pair._1, pair._2)}
+    val escapedStr = unescapeMap.foldLeft(sb.toString.replace("\\","\\\\")) { (text, pair) => text.replace(pair._1, pair._2)}
     pretty(render(parse(escapedStr)))
   }
 

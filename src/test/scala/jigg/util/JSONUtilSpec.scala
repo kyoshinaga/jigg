@@ -53,7 +53,10 @@ class JSONUtilSpec extends FunSuite{
   val testNodeForEscaping =
     <root>
       <document id={"<d0>"}>
-        {"\"Test&Node\""}
+        {"\"quot &amp"}
+      </document>
+      <document id={"d1"}>
+        {"\b \f \n \f \r"}
       </document>
     </root>
 

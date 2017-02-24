@@ -13,10 +13,18 @@ object JSONUtil {
 
   private def toJSONFromNode(node: Node): String = {
     val unescapeMap = Map(
+      // For XML escaping
       "&lt;" -> "<",
       "&gt;" -> ">",
       "&amp;" -> "&",
-      "&quot;" -> "\\\\\""
+      "&quot;" -> "\\\\\"",
+      // For JSON escaping
+      "\\" -> "\\\\",
+      "\b" -> "\\b",
+      "\f" -> "\\f",
+      "\n" -> "\\n",
+      "\r" -> "\\r",
+      "\t" -> "\\t"
     )
     val sb = new StringBuilder
     sb.append('{')
@@ -26,9 +34,10 @@ object JSONUtil {
     sb.append(serializing(node))
     sb.append("]")
     sb.append("}")
-    // The "parse" method can't handle the string with a single backslash,
+    // The "parse" method can't handle the string with several special characters,
     // because the "JString" class can't accept such kind of string.
-    // To escape this issue, we replace "\\" -> "\\\\" before throwing it to the "parse" method.
+    // To escape this issue, we replace such characters before throwing it to the "parse" method.
+    println(unescapeMap.foldLeft(sb.toString) { (text, pair) => text.replaceAll(pair._1, pair._2)})
     val escapedStr = unescapeMap.foldLeft(sb.toString.replace("\\","\\\\")) { (text, pair) => text.replaceAll(pair._1, pair._2)}
     pretty(render(parse(escapedStr)))
   }

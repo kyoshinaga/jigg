@@ -32,7 +32,8 @@ class LookupTable(path: String) {
 
   def encode(str: String): DenseMatrix[Float] = {
     val strArray = str.map{x =>
-      key2id.getOrElse(x.toString, "0").toFloat
+      // Note: For skipping unknown character, this encoder returns dummy id.
+      key2id.getOrElse(x.toString, "3").toFloat
     }.toArray
     new DenseMatrix[Float](1, str.length, strArray)
   }

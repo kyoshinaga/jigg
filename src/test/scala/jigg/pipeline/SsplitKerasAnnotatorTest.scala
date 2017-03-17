@@ -94,4 +94,30 @@ class SsplitKerasAnnotatorTest extends FunSuite {
       )
     }
   }
+
+  test("split text containing `Hankaku` and `Zenkaku` character"){
+    val text =
+      "半角文字abcdを含んでいる。" +
+      "半角文字1234を含んでいる。" +
+      "全角文字１２３４を含んでいる。"
+    val sentences = segment(text, properties)
+
+    sentences.length should be (3)
+    sentences(0).text should be ("半角文字abcdを含んでいる。")
+    sentences(1).text should be ("半角文字1234を含んでいる。")
+    sentences(2).text should be ("全角文字１２３４を含んでいる。")
+  }
+
+  test("split text containing unknown character"){
+    val text =
+      "既知語αを含んでいる。" +
+      "未知語βを含んでいる。" +
+      "未知語γを含んでいる。"
+    val sentences = segment(text, properties)
+
+    sentences.length should be (3)
+    sentences(0).text should be ("既知語αを含んでいる。")
+    sentences(1).text should be ("未知語βを含んでいる。")
+    sentences(2).text should be ("未知語γを含んでいる。")
+  }
 }

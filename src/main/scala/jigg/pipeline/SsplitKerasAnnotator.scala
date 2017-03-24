@@ -25,7 +25,7 @@ import jigg.util.XMLUtil.RichNode
 
 class SsplitKerasAnnotator(override val name: String, override val props: Properties) extends Annotator {
 
-  def defaultModelFileName = "model.h5"
+  def defaultModelFileName = "ssplit-model.h5"
   def defaultTableFileName = "table.json"
 
   @Prop(gloss = "Model file (if omitted, the default path is used to search file)") var model = ""
@@ -33,7 +33,7 @@ class SsplitKerasAnnotator(override val name: String, override val props: Proper
 
   readProps()
 
-  lazy val ssplitter: QueueSsplitter = new QueueSsplitter
+  lazy val sentenceSplitter: QueueSentenceSplitter = new QueueSentenceSplitter
 
   override def description =s"""${super.description}
 
@@ -42,7 +42,7 @@ class SsplitKerasAnnotator(override val name: String, override val props: Proper
 """
 
   override def init(): Unit = {
-    ssplitter
+    sentenceSplitter
   }
 
   private[this] val sentenceIDGen = jigg.util.IDGenerator("s")
@@ -59,13 +59,13 @@ class SsplitKerasAnnotator(override val name: String, override val props: Proper
           case -1 => begin_
           case offset => begin_ + offset
         }
-        val end = snippet.lastIndexWhere(!isSpace(_)) match { 
+        val end = snippet.lastIndexWhere(!isSpace(_)) match {
           case -1 => begin_
           case offset => begin_ + offset + 1
         }
 
         val preSentence: String = line.substring(begin, end)
-        val boundaries = ssplitter.s.parsing(preSentence)
+        val boundaries = sentenceSplitter.s.parsing(preSentence)
 
         boundaries.flatMap{x =>
           val subline = preSentence.substring(x._1, x._2)
@@ -83,28 +83,28 @@ class SsplitKerasAnnotator(override val name: String, override val props: Proper
     }
   }
 
-  class QueueSsplitter {
-    private def mkSsplitter: KerasParser = model match {
+  class QueueSentenceSplitter {
+    private def makeSentenceSplitter: KerasParser = model match {
       case "" =>
         System.err.println(s"No model file is given. Try to search default path: $defaultModelFileName")
         table match {
           case "" =>
-            System.err.println(s"No lookup table file is given. Try to search default path: $defaultModelFileName")
-            KerasParser(defaultModelFileName, defaultTableFileName)
+            System.err.println(s"No lookup table file is given. Try to search default path: $defaultTableFileName")
+            KerasParser(defaultTableFileName, defaultTableFileName)
           case tableFile =>
-            KerasParser(defaultModelFileName, tableFile)
+            KerasParser(defaultTableFileName, tableFile)
         }
       case modelFile =>
         table match {
           case "" =>
-            System.err.println(s"No lookup table file is given. Try to search default path: $defaultModelFileName")
+            System.err.println(s"No lookup table file is given. Try to search default path: $defaultTableFileName")
             KerasParser(model, defaultTableFileName)
           case tableFile =>
             KerasParser(model, tableFile)
         }
     }
 
-    val s: KerasParser = mkSsplitter
+    val s: KerasParser = makeSentenceSplitter
   }
 
   override def requires() = Set()

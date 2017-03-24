@@ -110,14 +110,12 @@ class SsplitKerasAnnotatorTest extends FunSuite {
 
   test("split text containing unknown character"){
     val text =
-      "既知語αを含んでいる。" +
-      "未知語βを含んでいる。" +
-      "未知語γを含んでいる。"
+      "αを含んでいる。" +
+      "βを含んでいる。"
     val sentences = segment(text, properties)
 
-    sentences.length should be (3)
-    sentences(0).text should be ("既知語αを含んでいる。")
-    sentences(1).text should be ("未知語βを含んでいる。")
-    sentences(2).text should be ("未知語γを含んでいる。")
+    sentences.length should be (2)
+    sentences(0).text should be ("αを含んでいる。")
+    sentences(1).text should be ("βを含んでいる。")
   }
 }

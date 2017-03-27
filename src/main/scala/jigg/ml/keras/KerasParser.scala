@@ -20,6 +20,8 @@ import breeze.linalg.argmax
 import jigg.ml.keras._
 import jigg.util.LookupTable
 
+import scala.xml.Node
+
 import scala.collection.mutable.ListBuffer
 
 class KerasParser(modelPath: String, tablePath: String) {
@@ -37,16 +39,34 @@ class KerasParser(modelPath: String, tablePath: String) {
 
   def parsing(str: String): List[(Int, Int)] = {
     // For dummy input to indicate boundaries of sentence.
-    val s = "\n" + str + "\n"
-    val inputData = table.encode(s)
+    val s = "\n" + str + "\n\n"
+    val inputData = table.encodeCharacter(s)
     val outputData = model.convert(inputData)
 
     val tags = for {
-      i <- 1 until outputData.rows - 1
+      i <- 1 until outputData.rows - 2
       maxID = argmax(outputData(i, ::))
     } yield maxID
 
     getOffsets(tags.toList)
+  }
+
+  def parsing(node: Node): List[List[String]] = {
+    // For dummy input to indicate boundaries of sentence.
+    val words = List("\n") ::: (node \\ "tokens").flatMap(x => x \\ "@lemma").toList.map(x => x.toString) ::: List("\n","\n")
+    val ids = (node \\ "tokens").flatMap(x => x \\ "@id").toList.map(x => x.toString)
+
+    val inputData = table.encodeWords(words)
+    val outputData = model.convert(inputData)
+
+    val tags = for {
+      i <- 1 until outputData.rows - 2
+      maxID = argmax(outputData(i, ::))
+    } yield maxID
+
+    val ranges = getOffsets(tags.toList)
+
+    ranges.map(x => ids.slice(x._1, x._2))
   }
 
   def getOffsets(data: List[Int]): List[(Int, Int)]= {

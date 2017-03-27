@@ -21,58 +21,57 @@ import java.util.Properties
 import org.scalatest.FunSuite
 import org.scalatest.Matchers._
 
-import scala.xml.{Elem, NodeSeq, XML}
+import scala.xml.{Elem, NodeSeq, XML, Node}
 
 class BunsetsuKerasAnnotatorTest extends FunSuite {
 
-  def segment(text: String, properties: Properties): NodeSeq = {
-    val pipeline = new Pipeline(properties)
-    pipeline.annotateText(text) \\ "sentences" \ "sentence" \\ "tokens" \ "token"
-  }
-
   def findPath(localPath: String): String = getClass.getClassLoader.getResource(localPath).getPath
 
+  /*
+  def segment(node: Node, properties: Properties): NodeSeq = {
+    val bunsetsuSplitter = new BunsetsuKerasAnnotator("bunsetsuKeras", properties)
+    bunsetsuSplitter.newSentenceAnnotation(node)
+//    pipeline.annotateText(text) \\ "sentences" \ "sentence" \\ "tokens" \ "token"
+  }
+
   val properties = new Properties
-  properties.setProperty("annotators", "ssplitKeras,bunsetsuKeras")
-  properties.setProperty("ssplitKeras.model", findPath("./data/keras/ssplit_model.h5"))
-  properties.setProperty("ssplitKeras.table", findPath("./data/keras/jpnLookup.json"))
-  properties.setProperty("bunsetsuKeras.model", findPath("./data/keras/bunsetsu_model.h5"))
-  properties.setProperty("bunsetsuKeras.table", findPath("./data/keras/jpnLookup.json"))
+  properties.setProperty("bunsetsuKeras.model", findPath("./data/keras/bunsetsu_model_sample.h5"))
+  properties.setProperty("bunsetsuKeras.table", findPath("data/keras/jpnLookupWords.json"))
+  */
 
   test("split text to bunsetsu") {
-    val tokens = segment("梅が咲いた。", properties)
+    import jigg.ml.keras.KerasParser
 
-    tokens.length should be (2)
-    (tokens(0) \\ "@form").text should be ("梅が")
-    (tokens(1) \\ "@form").text should be ("咲いた。")
+    val parser = KerasParser(
+      findPath("./data/keras/bunsetsu_model_sample.h5"),
+      findPath("./data/keras/jpnLookupWords.json")
+    )
+
+    val offsets = parser.parsing(Sentences.xml("oneSentence"))
+
+    println(offsets)
+
+    1 should be (1)
   }
 
-  test("split text containing `Hankaku` and `Zenkaku` character"){
-    val text =
-      "半角文字abcdを含んでいる。" +
-      "半角文字1234を含んでいる。" +
-      "全角文字１２３４を含んでいる。"
-    val tokens = segment(text, properties)
-
-    tokens.length should be (6)
-    (tokens(0) \\ "@form").text should be ("半角文字abcdを")
-    (tokens(1) \\ "@form").text should be ("含んでいる。")
-    (tokens(2) \\ "@form").text should be ("半角文字1234を")
-    (tokens(3) \\ "@form").text should be ("含んでいる。")
-    (tokens(4) \\ "@form").text should be ("全角文字１２３４を")
-    (tokens(5) \\ "@form").text should be ("含んでいる。")
-  }
-
-  test("split text containing unknown character"){
-    val text =
-      "αを含んでいる。" +
-      "βを含んでいる。"
-    val tokens = segment(text, properties)
-
-    tokens.length should be (4)
-    (tokens(0) \\ "@form").text should be ("αを")
-    (tokens(1) \\ "@form").text should be ("含んでいる。")
-    (tokens(2) \\ "@form").text should be ("βを")
-    (tokens(3) \\ "@form").text should be ("含んでいる。")
+  object Sentences {
+    val xml = Map("oneSentence" ->
+      <root>
+       <document id="d1">
+          <sentences>
+            <sentence id="s1" characterOffsetBegin="0" characterOffsetEnd="6">
+              梅が咲いた。
+              <tokens annotators="mecab">
+                <token id="s1_tok0" form="梅" offsetBegin="0" offsetEnd="1" pos="名詞" pos1="一般" pos2="*" pos3="*" cType="*" cForm="*" lemma="梅" yomi="ウメ" pron="ウメ"/>
+                <token id="s1_tok1" form="が" offsetBegin="1" offsetEnd="2" pos="助詞" pos1="格助詞" pos2="一般" pos3="*" cType="*" cForm="*" lemma="が" yomi="ガ" pron="ガ"/>
+                <token id="s1_tok2" form="咲い" offsetBegin="2" offsetEnd="4" pos="動詞" pos1="自立" pos2="*" pos3="*" cType="五段・カ行イ音便" cForm="連用タ接続" lemma="咲く" yomi="サイ" pron="サイ"/>
+                <token id="s1_tok3" form="た" offsetBegin="4" offsetEnd="5" pos="助動詞" pos1="*" pos2="*" pos3="*" cType="特殊・タ" cForm="基本形" lemma="た" yomi="タ" pron="タ"/>
+                <token id="s1_tok4" form="。" offsetBegin="5" offsetEnd="6" pos="記号" pos1="句点" pos2="*" pos3="*" cType="*" cForm="*" lemma="。" yomi="。" pron="。"/>
+              </tokens>
+            </sentence>
+          </sentences>
+        </document>
+      </root>
+    )
   }
 }

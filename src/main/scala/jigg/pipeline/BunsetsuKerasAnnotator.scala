@@ -18,10 +18,10 @@ package jigg.pipeline
 import java.util.Properties
 import jigg.ml.keras.KerasParser
 
-import scala.xml.Node
+import scala.xml.{Node, NodeSeq}
 import jigg.util.XMLUtil.RichNode
 
-class BunsetsuKerasAnnotator(override val name: String, override val props: Properties) extends SentencesAnnotator {
+abstract class BunsetsuKerasAnnotator(override val name: String, override val props: Properties) extends ExternalProcessSentencesAnnotator { self =>
 
   def defaultModelFileName = "bunsetsu_model.h5"
   def defaultTableFileName = "table.json"
@@ -31,70 +31,87 @@ class BunsetsuKerasAnnotator(override val name: String, override val props: Prop
 
   readProps()
 
-  lazy val bunsetsuSplitter: QueueBunsetsuSplitter = new QueueBunsetsuSplitter
+  localAnnotators // instantiate lazy val here
 
   override def description =s"""${super.description}
 
-  A bunsetsu splitter for Japanese language based on NN-model training on keras.
+  Annotate chunks (bunsetsu).
+
+  Note about dictionary:
+    Distionary settings of tokenizer (e.g., mecab) should be IPA.
 
 """
 
-  override def init(): Unit = {
-    bunsetsuSplitter
-  }
+  trait LocalBunsetsuKerasAnntoator extends LocalAnnotator {
+    lazy val bunsetsuSplitter: QueueBunsetsuSplitter = new QueueBunsetsuSplitter
 
-  override def newSentenceAnnotation(sentence: Node): Node = {
-    def tid (sindex: String, tindex: Int) = sindex + "_" + tindex
-
-    val sindex = (sentence \ "@id").toString
-    val text = sentence.text
-
-    var tokenIndex = 0
-    val boundaries = bunsetsuSplitter.b.parsing(text)
-
-    val tokenNodes = boundaries.map{t =>
-      val node = tokenToNode(text.slice(t._1, t._2), t, tid(sindex, tokenIndex))
-      tokenIndex += 1
-      node
+    override def init(): Unit = {
+      bunsetsuSplitter
     }
 
-    sentence addChild <tokens annotators={ name }>{ tokenNodes }</tokens>
-  }
+    override def newSentenceAnnotation(sentence: Node): Node = {
+      def tid (sindex: String, tindex: Int) = sindex + "_" + tindex
 
-  private def tokenToNode(form: String, span:(Int, Int), id: String) =
-    <token
-      id={ id }
-      form={ form }
-      offsetBegin = { span._1.toString }
-      offsetEnd = { span._2.toString }
-      />
+      val sindex = (sentence \ "@id").toString
 
-  class QueueBunsetsuSplitter {
-    private def makeBunsetsuSplitter: KerasParser = model match {
-      case "" =>
-        System.err.println(s"No model file is given. Try to search default path: $defaultModelFileName")
-        table match {
-          case "" =>
-            System.err.println(s"No lookup table file is given. Try to search default path: $defaultTableFileName")
-            KerasParser(defaultModelFileName, defaultTableFileName)
-          case tableFile =>
-            KerasParser(defaultTableFileName, tableFile)
-        }
-      case modelFile =>
-        table match {
-          case "" =>
-            System.err.println(s"No lookup table file is given. Try to search default path: $defaultTableFileName")
-            KerasParser(model, defaultTableFileName)
-          case tableFile =>
-            KerasParser(model, tableFile)
-        }
+      var tokenIndex = 0
+      val chunks = bunsetsuSplitter.b.parsing(sentence)
+
+      val tokenNodes = boundaries.map{t =>
+        val node = tokenToNode(text.slice(t._1, t._2), t, tid(sindex, tokenIndex))
+        tokenIndex += 1
+        node
+      }
+
+      sentence addChild <tokens annotators={ name }>{ tokenNodes }</tokens>
     }
 
-    val b: KerasParser = makeBunsetsuSplitter
+    private def tokenToNode(form: String, span:(Int, Int), id: String) =
+        <token
+        id={ id }
+        form={ form }
+        offsetBegin = { span._1.toString }
+        offsetEnd = { span._2.toString }
+        />
+
+    class QueueBunsetsuSplitter {
+      private def makeBunsetsuSplitter: KerasParser = model match {
+        case "" =>
+          System.err.println(s"No model file is given. Try to search default path: $defaultModelFileName")
+          table match {
+            case "" =>
+              System.err.println(s"No lookup table file is given. Try to search default path: $defaultTableFileName")
+              KerasParser(defaultModelFileName, defaultTableFileName)
+            case tableFile =>
+              KerasParser(defaultTableFileName, tableFile)
+          }
+        case modelFile =>
+          table match {
+            case "" =>
+              System.err.println(s"No lookup table file is given. Try to search default path: $defaultTableFileName")
+              KerasParser(model, defaultTableFileName)
+            case tableFile =>
+              KerasParser(model, tableFile)
+          }
+      }
+
+      val b: KerasParser = makeBunsetsuSplitter
+    }
+
   }
 
-  override def requires() = Set(Requirement.Ssplit)
-  override def requirementsSatisfied(): Set[Requirement] = Set(JaRequirement.TokenizeWithIPA)
+  override def requirementsSatisfied(): Set[Requirement] = Set(JaRequirement.BunsetsuChunk)
+}
+
+class IPABunsetsuKerasAnnotator(name: String, props: Properties) extends BunsetsuKerasAnnotator(name, props){
+
+  def mkLocalAnnotator = new IPALocalBunsetsuKerasAnnotator
+
+  class IPALocalBunsetsuKerasAnnotator extends LocalBunsetsuKerasAnntoator {
+    val featAttributes = Array("lemma").map("@"+_)
+  }
+
+  override def requires() = Set(JaRequirement.TokenizeWithIPA)
 }
 
 object BunsetsuKerasAnnotator extends AnnotatorCompanion[BunsetsuKerasAnnotator] {

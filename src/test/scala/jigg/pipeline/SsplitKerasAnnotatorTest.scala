@@ -37,7 +37,7 @@ class SsplitKerasAnnotatorTest extends FunSuite {
 
   val properties = new Properties
   properties.setProperty("ssplitKeras.model", findPath("./data/keras/ssplit_model.h5"))
-  properties.setProperty("ssplitKeras.table", findPath("./data/keras/jpnLookup.json"))
+  properties.setProperty("ssplitKeras.table", findPath("data/keras/jpnLookupCharacter.json"))
 
   test("split sentence by new line") {
     val sentences = segment("梅が咲いた。\n桜も咲いた。", properties)

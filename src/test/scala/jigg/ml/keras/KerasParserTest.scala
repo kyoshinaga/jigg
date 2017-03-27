@@ -26,7 +26,7 @@ class KerasParserTest extends FunSuite{
   def findPath(localPath: String): String = getClass.getClassLoader.getResource(localPath).getPath
 
   val modelPath: String = findPath("./data/keras/ssplit_model.h5")
-  val tablePath: String = findPath("./data/keras/jpnLookup.json")
+  val tablePath: String = findPath("data/keras/jpnLookupCharacter.json")
 
   val parser = KerasParser(modelPath, tablePath)
 

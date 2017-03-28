@@ -51,10 +51,10 @@ class KerasParser(modelPath: String, tablePath: String) {
     getOffsets(tags.toList)
   }
 
-  def parsing(node: Node): List[List[String]] = {
+  def parsing(tokens: Node): List[List[String]] = {
     // For dummy input to indicate boundaries of sentence.
-    val words = List("\n") ::: (node \\ "tokens").flatMap(x => x \\ "@lemma").toList.map(x => x.toString) ::: List("\n","\n")
-    val ids = (node \\ "tokens").flatMap(x => x \\ "@id").toList.map(x => x.toString)
+    val words = List("\n") ::: (tokens \\ "tokens").flatMap(x => x \\ "@lemma").toList.map(x => x.toString) ::: List("\n","\n")
+    val ids = (tokens \\ "tokens").flatMap(x => x \\ "@id").toList.map(x => x.toString)
 
     val inputData = table.encodeWords(words)
     val outputData = model.convert(inputData)

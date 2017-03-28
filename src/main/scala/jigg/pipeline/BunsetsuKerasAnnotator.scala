@@ -24,7 +24,7 @@ import jigg.util.XMLUtil.RichNode
 abstract class BunsetsuKerasAnnotator(override val name: String, override val props: Properties) extends ExternalProcessSentencesAnnotator { self =>
 
   def defaultModelFileName = "bunsetsu_model.h5"
-  def defaultTableFileName = "table.json"
+  def defaultTableFileName = "jpnLookupWords.json"
 
   @Prop(gloss = "Model file (if omitted, the default path is used to search file)") var model = ""
   @Prop(gloss = "Lookup table for mapping character into id space") var table = ""
@@ -49,29 +49,34 @@ abstract class BunsetsuKerasAnnotator(override val name: String, override val pr
       bunsetsuSplitter
     }
 
-    override def newSentenceAnnotation(sentence: Node): Node = {
-      def tid (sindex: String, tindex: Int) = sindex + "_" + tindex
+    override def newSentenceAnnotation(senteoce: Node): Node = {
+      val sid = (senteoce \ "@id").toString
 
-      val sindex = (sentence \ "@id").toString
+      def chunkId(sid: String, idx: Int) = sid + "_chu" + idx
 
-      var tokenIndex = 0
-      val chunks = bunsetsuSplitter.b.parsing(sentence)
+      val chunks = bunsetsuSplitter.b.parsing(senteoce)
 
-      val tokenNodes = boundaries.map{t =>
-        val node = tokenToNode(text.slice(t._1, t._2), t, tid(sindex, tokenIndex))
-        tokenIndex += 1
+      var chunkIndex = 0
+
+      val chunkNodes = chunks.map{ c =>
+        val node = chunkToNode(
+          chunkId(sid,chunkIndex),
+          c.mkString(" "),
+          c.head,
+          c.last
+        )
+        chunkIndex += 1
         node
       }
-
-      sentence addChild <tokens annotators={ name }>{ tokenNodes }</tokens>
+      senteoce addChild <chunks annotators={ name }>{ chunkNodes }</chunks>
     }
 
-    private def tokenToNode(form: String, span:(Int, Int), id: String) =
-        <token
+    private def chunkToNode(id: String, tokens: String, head: String, func: String) =
+        <chunk
         id={ id }
-        form={ form }
-        offsetBegin = { span._1.toString }
-        offsetEnd = { span._2.toString }
+        tokens={ tokens }
+        head={ head }
+        func={ func }
         />
 
     class QueueBunsetsuSplitter {
@@ -116,6 +121,10 @@ class IPABunsetsuKerasAnnotator(name: String, props: Properties) extends Bunsets
 
 object BunsetsuKerasAnnotator extends AnnotatorCompanion[BunsetsuKerasAnnotator] {
 
-  val model = ""
-  val table = ""
+  def defaultModelFileName = ""
+  def defaultTableFileName = ""
+
+  override def fromProps(name: String, props: Properties) = {
+    new IPABunsetsuKerasAnnotator(name, props)
+  }
 }

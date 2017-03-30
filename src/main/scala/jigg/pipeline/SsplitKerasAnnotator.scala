@@ -41,7 +41,7 @@ class SsplitKerasAnnotator(override val name: String, override val props: Proper
 
 """
 
-  override def init(): Unit = {
+  override def init() = {
     sentenceSplitter
   }
 
@@ -75,7 +75,7 @@ class SsplitKerasAnnotator(override val name: String, override val props: Proper
             Option(<sentence
             id={ sentenceIDGen.next }
             characterOffsetBegin={ x._1 + begin + ""}
-            characterOffsetEnd={ x._2 + + begin + ""}>{subline}</sentence>)
+            characterOffsetEnd={ x._2 + + begin + ""}>{ subline }</sentence>)
           }
         }
       }

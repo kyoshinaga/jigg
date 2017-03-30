@@ -18,7 +18,7 @@ package jigg.pipeline
 import java.util.Properties
 import jigg.ml.keras.KerasParser
 
-import scala.xml.{Node, NodeSeq}
+import scala.xml.Node
 import jigg.util.XMLUtil.RichNode
 
 abstract class BunsetsuKerasAnnotator(override val name: String, override val props: Properties) extends ExternalProcessSentencesAnnotator { self =>
@@ -45,7 +45,7 @@ abstract class BunsetsuKerasAnnotator(override val name: String, override val pr
   trait LocalBunsetsuKerasAnntoator extends LocalAnnotator {
     lazy val bunsetsuSplitter: QueueBunsetsuSplitter = new QueueBunsetsuSplitter
 
-    override def init(): Unit = {
+    override def init() = {
       bunsetsuSplitter
     }
 

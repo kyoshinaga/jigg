@@ -48,13 +48,13 @@
         "UNKNOWN": "0",
         "\n": "1",
         " " : "2",
-        ...
+        "Additional elements": "3..."
         },
     "_id2key": {
         "0": "UNKNOWN",
         "1": "\n",
         "2": " ",
-        ...
+        "3..." : "Additional elements"
     }
   }
 }

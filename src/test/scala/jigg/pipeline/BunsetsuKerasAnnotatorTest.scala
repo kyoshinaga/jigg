@@ -21,7 +21,7 @@ import java.util.Properties
 import org.scalatest.FunSuite
 import org.scalatest.Matchers._
 
-import scala.xml.{Elem, NodeSeq, XML, Node}
+import scala.xml.{NodeSeq, Node}
 
 class BunsetsuKerasAnnotatorTest extends FunSuite {
 

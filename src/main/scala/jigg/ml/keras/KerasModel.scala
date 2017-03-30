@@ -30,14 +30,14 @@ class KerasModel(path: String) {
 
   private val weightGroups = model.checkAndGetGroup("model_weights")
 
-  def parseConfigToList(config: String): Seq[Map[String, Any]] = {
+  def parseConfigToSeq(config: String): Seq[Map[String, Any]] = {
     val jsonValue = parse(config)
     implicit val formats = DefaultFormats
     val jsonList = jsonValue.extract[Map[String, Any]]
     jsonList("config").asInstanceOf[Seq[Map[String, Any]]]
   }
 
-  private val modelValues = parseConfigToList(modelAttribute.getValue(0).toString)
+  private val modelValues = parseConfigToSeq(modelAttribute.getValue(0).toString)
 
   def getConfigs(x: Map[String, Any]): Map[String, Any] = x("config").asInstanceOf[Map[String,Any]]
 
